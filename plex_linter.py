@@ -6,6 +6,8 @@ from collections import defaultdict, Counter
 from config import cfg
 from pprint import pprint
 from plexapi.server import PlexServer
+from mutagen import File
+from mutagen import MutagenError
 
 ############################################################
 # INIT
@@ -41,8 +43,7 @@ except BaseException:
 # PLEX METHODS
 ############################################################
 
-def get_album_dupes(plex_section_name) -> dict:
-    section = plex.library.section(plex_section_name)
+def get_album_dupes(section) -> dict:
     albums = section.albums()
     album_dict = defaultdict(list)
     for a in albums:
@@ -51,16 +52,14 @@ def get_album_dupes(plex_section_name) -> dict:
     return result
 
 
-def get_artist_dupes(plex_section_name) -> list:
-    section = plex.library.section(plex_section_name)
+def get_artist_dupes(section) -> list:
     artists_names = [a.title for a in section.searchArtists()]
     count = Counter(artists_names)
     result = [k for k, v in count.items() if v > 1]
     return result
 
 
-def get_tracks_without_titles(plex_section_name) -> list:
-    section = plex.library.section(plex_section_name)
+def get_tracks_without_titles(section) -> list:
     albums = section.albums()
     result = []
     for a in albums:
@@ -69,14 +68,46 @@ def get_tracks_without_titles(plex_section_name) -> list:
     return result
 
 
+def get_different_artists(section) -> list:
+    albums = section.albums()
+    result = []
+    count = 0
+    for a in albums:
+        album_artist = a.artist().title
+        if album_artist == 'Various Artists':
+            pass
+        else:
+            tracks = a.tracks()
+            for t in tracks:
+                count += 1
+                if count % 100 == 0:
+                    print('.', end = '', flush=True)
+                if count % 5000 == 0:
+                    pprint(result, width=160)
+                file_name = next(t.iterParts()).file
+                try:
+                    tags = File(file_name, easy=True)
+                    tag_albumartist = tags.get('albumartist', [''])[0]
+                    tag_artist = tags.get('artist', [''])[0]
+                    if (tag_albumartist != album_artist and
+                        tag_artist != album_artist):
+                        result.append((t.title, t.album().title,
+                                       album_artist, tag_albumartist,
+                                       tag_artist))
+                except MutagenError as err:
+                    pprint(err)
+                    print("Exception caught trying to read %s" % file_name)
+    return result
+
+
 ############################################################
 # MISC METHODS
 ############################################################
 
-def print_dupe_list(dupes: list, header_message: str) -> None:
+def print_list(my_list: list, header_message: str) -> None:
         print(header_message)
-        if len(dupes) > 0:
-            pprint(dupes)
+        if len(my_list) > 0:
+            pprint(my_list, width=160)
 
 
 ############################################################
@@ -84,21 +115,28 @@ def print_dupe_list(dupes: list, header_message: str) -> None:
 ############################################################
 def main() -> None:
     print("Starting to lint...")
-    for section in cfg.PLEX_LIBRARIES:
+    for section_name in cfg.PLEX_LIBRARIES:
+        section = plex.library.section(section_name)
         dupes = get_album_dupes(section)
         print("Found %d album name dupes for section %r" %
-              (len(dupes), section))
+              (len(dupes), section_name))
         for key in dupes:
             for value in dupes[key]:
                 print("Title: '" + key + "', Artist: " + value.parentTitle)
 
         dupes = get_artist_dupes(section)
-        print_dupe_list(dupes, "Found %d artist name dupes for section %r" %
-                        (len(dupes), section))
+        print_list(dupes, "Found %d artist name dupes for section %r" %
+                   (len(dupes), section_name))
 
         notitles = get_tracks_without_titles(section)
-        print_dupe_list(dupes, "Found %d tracks without titles in section %r" %
-                        (len(notitles), section))
+        print_list(notitles, "Found %d tracks without titles in section %r" %
+                   (len(notitles), section_name))
+
+        print("Finding wrong artists")
+        wrong_artists = get_different_artists(section)
+        print_list(wrong_artists, "Found %d tracks with potentially the wrong "
+                   " artists in section %r" % (len(wrong_artists),
+                                               section_name))
 
     print("Done!")
 
