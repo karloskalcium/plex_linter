@@ -25,6 +25,7 @@ Plex Linter is a python script that looks for various potential issues in your l
   * Duplicate album titles (that could suggest albums that have been incorrectly split)
   * Duplicate artists (for artists that have been split)
   * Tracks without titles (sometimes Plex metadata deletes track titles)
+  * Tracks linked to artists with Plex metadata that differ from what the MP3 tags say.
 
 # Requirements
 
