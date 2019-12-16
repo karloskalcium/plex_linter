@@ -36,60 +36,38 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 # Installation
 
-_Note: Steps below are for Debian-based distros (other operating systems will require tweaking to the steps)._
+_Note: Steps below are for OSX (other operating systems will require tweaking to the steps)._
 
-1. Install Python 3 and PIP
-
-   ```
-   sudo apt install python3 python3-pip
-   ```
+1. Install Python 3.8 and PIP. Instructions can be found here: https://installvirtual.com/how-to-install-python-3-8-on-mac-using-pyenv/
 
 1. Clone the Plex DupeFinder repo.
 
    ```
-   sudo git clone https://github.com/karlwbrown/plex_linter /opt/plex_linter
-   ```
-
-1. Find your user & group.
-
-   ```
-   id
-   ```
-
-1. Fix permissions of the Plex Linter folder (replace `user`/`group` with yours).
-
-   ```
-   sudo chown -R user:group /opt/plex_linter
+   git clone https://github.com/karlwbrown/plex_linter
    ```
 
 1. Go into the Plex Linter folder.
 
    ```
-   cd /opt/plex_linter
+   cd plex_linter
    ```
 
 1. Install the required python modules.
 
    ```
-   sudo python3 -m pip install -r requirements.txt
-   ```
-
-1. Create a shortcut for Plex Linter.
-
-   ```
-   sudo ln -s /opt/plex_linter/plex_linter.py /usr/local/bin/plex_linter
+   python3 -m pip install -r requirements.txt
    ```
 
 1. Generate a `config.json` file.
 
    ```
-   plex_linter
+   ./plex_linter.sh
    ```
 
 1. Fill in Plex URL and credentials at the prompt to generated a Plex Access Token (optional).
 
    ```
-   Dumping default config to: /opt/plex_linter/config.json
+   Dumping default config to: ./config.json
    Plex Server URL: http://localhost:32400
    Plex Username: your_plex_username
    Plex Password: your_plex_password
@@ -99,7 +77,7 @@ _Note: Steps below are for Debian-based distros (other operating systems will re
 1. Configure the `config.json` file.
 
    ```
-   nano config.json
+   open config.json
    ```
 
 
@@ -113,7 +91,7 @@ _Note: Steps below are for Debian-based distros (other operating systems will re
     "Audiobooks"
   ],
   "PLEX_SERVER": "https://plex.your-server.com",
-  "PLEX_TOKEN": ""
+  "PLEX_TOKEN": "<your-token>"
 }
 ```
 
@@ -121,13 +99,13 @@ _Note: Steps below are for Debian-based distros (other operating systems will re
 
 ### Plex Libraries
 
-1. Go to Plex and get all the names of your Plex Libraries you want to run the linter on
+1. Go to Plex and get all the names of your Plex Music Libraries you want to run the linter on
 
    - Example Library:
 
      ![](https://i.imgur.com/JFRTD1m.png)
 
-1. Under `PLEX_LIBRARIES`, type in the Plex *Library Name* (exactly).
+1. Under `PLEX_LIBRARIES`, type in the Plex *Library Name* (exactly). Note that the linter only works for music libraries currently.
 
    - Format:
 
@@ -164,7 +142,7 @@ _Note: Steps below are for Debian-based distros (other operating systems will re
 Simply run the script/command:
 
 ```
-plex_dupefinder
+./plex_linter.py
 ```
 
 ***
