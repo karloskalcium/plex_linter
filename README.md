@@ -1,5 +1,5 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-blue.svg?style=flat-square)](https://www.python.org/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%203-blue.svg?style=flat-square)](https://github.com/karlwbrown/plex_linter/blob/master/LICENSE.md)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%203-blue.svg?style=flat-square)](https://github.com/karloskalcium/plex_linter/blob/master/LICENSE.md)
 [![Contributing](https://img.shields.io/badge/Contributing-gray.svg?style=flat-square)](CONTRIBUTING.md)
 
 ---
@@ -43,7 +43,7 @@ _Note: Steps below are for OSX (other operating systems will require tweaking to
 1. Clone the Plex DupeFinder repo.
 
    ```
-   git clone https://github.com/karlwbrown/plex_linter
+   git clone https://github.com/karloskalcium/plex_linter
    ```
 
 1. Go into the Plex Linter folder.
