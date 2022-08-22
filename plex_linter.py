@@ -81,19 +81,17 @@ def get_different_artists(section) -> list:
             for t in tracks:
                 count += 1
                 if count % 100 == 0:
-                    print('.', end = '', flush=True)
-                if count % 5000 == 0:
-                    pprint(result, width=160)
+                    print('.', end='', flush=True)
                 file_name = next(t.iterParts()).file
                 try:
                     tags = File(file_name, easy=True)
                     tag_albumartist = tags.get('albumartist', [''])[0]
                     tag_artist = tags.get('artist', [''])[0]
-                    if (tag_albumartist != album_artist and
-                        tag_artist != album_artist):
+                    if (tag_albumartist != album_artist and tag_artist != album_artist):
                         result.append((t.title, t.album().title,
-                                       album_artist, tag_albumartist,
-                                       tag_artist))
+                                       'plex-album-artist: ' + album_artist,
+                                       'tag-album-artist: ' + tag_albumartist,
+                                       'tag-artist:' + tag_artist))
                 except MutagenError as err:
                     pprint(err)
                     print("Exception caught trying to read %s" % file_name)
@@ -105,9 +103,9 @@ def get_different_artists(section) -> list:
 ############################################################
 
 def print_list(my_list: list, header_message: str) -> None:
-        print(header_message)
-        if len(my_list) > 0:
-            pprint(my_list, width=160)
+    print(header_message)
+    if len(my_list) > 0:
+        pprint(my_list, width=160)
 
 
 ############################################################

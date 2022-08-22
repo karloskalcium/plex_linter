@@ -1,5 +1,6 @@
-attrdict~=2.0.0
-mutagen~=1.43.0
-PlexAPI~=3.3.0
-requests>=2.20.0
-tabulate~=0.8.2
+attrdict
+mutagen
+PlexAPI
+requests
+tabulate
+flake8

@@ -38,13 +38,18 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 _Note: Steps below are for OSX (other operating systems will require tweaking to the steps)._
 
-1. Install Python 3.8 and PIP. Instructions can be found here: https://installvirtual.com/how-to-install-python-3-8-on-mac-using-pyenv/
-
-1. Clone the Plex DupeFinder repo.
+1. Clone the `plex_linter` repo.
 
    ```
    git clone https://github.com/karloskalcium/plex_linter
    ```
+
+1. Create and configure virtual environment.
+Make sure you have the correct version of python. [Pyenv](https://github.com/pyenv/pyenv) manages python versions.
+  1. `pyenv install 3.10.6` (use version in `.python-version`)
+  2. Make sure to configure your shell's environment for pyenv following instructions in step 2
+    [here](https://github.com/pyenv/pyenv#basic-github-checkout).
+  3. Once this is done, start a new shell and run `pyenv version` and `python --version` in the terminal from the root directory of the project, both should read `3.10.6`
 
 1. Go into the Plex Linter folder.
 
@@ -55,7 +60,8 @@ _Note: Steps below are for OSX (other operating systems will require tweaking to
 1. Install the required python modules.
 
    ```
-   python3 -m pip install -r requirements.txt
+  $ make python-install
+  $ source ENV/bin/activate
    ```
 
 1. Generate a `config.json` file.
