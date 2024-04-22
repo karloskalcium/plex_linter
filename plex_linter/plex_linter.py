@@ -131,11 +131,11 @@ def main() -> None:
         print_list(notitles, "Found %d tracks without titles in section %r" %
                    (len(notitles), section_name))
 
-        print("Finding wrong artists")
-        wrong_artists = get_different_artists(section)
-        print_list(wrong_artists, "Found %d tracks with potentially the wrong "
-                   " artists in section %r" % (len(wrong_artists),
-                                               section_name))
+        # print("Finding wrong artists")
+        # wrong_artists = get_different_artists(section)
+        # print_list(wrong_artists, "Found %d tracks with potentially the wrong "
+        #            " artists in section %r" % (len(wrong_artists),
+        #                                        section_name))
 
     print("Done!")
 
