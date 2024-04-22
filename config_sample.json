@@ -1,8 +1,0 @@
-{
-  "PLEX_LIBRARIES": [
-    "Music",
-    "Audiobooks"
-  ],
-  "PLEX_SERVER": "https://plex.your-server.com",
-  "PLEX_TOKEN": "",
-}

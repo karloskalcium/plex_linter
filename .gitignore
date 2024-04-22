@@ -2,13 +2,20 @@
 .idea
 
 # configuration file
-config.json
+config.toml
+
+# make
+.install.stamp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+
+# testing
+.coverage*
+results
 
 # logs
 *.log*

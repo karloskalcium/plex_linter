@@ -1,0 +1,9 @@
+[server]
+server_url = "https://plex.your-server.com"
+server_token = ""
+
+[content]
+libraries = [
+  "Music",
+  "Audiobooks"
+]

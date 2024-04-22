@@ -1,146 +1,99 @@
-#!/usr/bin/env python3
-
-
-import json
+import logging
 import os
-import sys
+import shutil
 from getpass import getpass
+from inspect import getsourcefile
+from pprint import pformat
 
-from attrdict import AttrDict
+import plexapi.exceptions
+import requests
+import typer
 from plexapi.myplex import MyPlexAccount
+from plexapi.server import PlexServer
+from tomlkit import toml_file
 
-config_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'config.json')
-base_config = {
-    'PLEX_SERVER': 'https://plex.your-server.com',
-    'PLEX_TOKEN': '',
-    'PLEX_LIBRARIES': [],
-}
-cfg = None
+# Get the path of where this module lives
+config_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../config.toml")
+template_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../config.template.toml")
 
 
-class AttrConfig(AttrDict):
-    """
-    Simple AttrDict subclass to return None when requested attribute
-    does not exist
-    """
+def plex_server_login(url: str, token: str) -> PlexServer:
+    """Attempts to log into plex server, returning server if success, raises error otherwise"""
+    try:
+        plex = PlexServer(url, token)
+    except plexapi.exceptions.Unauthorized:
+        logging.error(f"Unauthorized error connecting to server {url}, check your credentials")
+        raise
+    except requests.exceptions.ConnectionError:
+        logging.error(f"Error connecting to {url}, check the URL provided")
+        raise
 
-    def __init__(self, config):
-        super().__init__(config)
+    return plex
 
-    def __getattr__(self, item):
+
+def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
+    """Gathers url, username and password from user, and repeats until successful authentication"""
+    """Server URL and valid token are placed in the config document when successful"""
+    plex = None
+    while True:
+        url = input("Plex server URL: ")
+        user = input("Plex username: ")
+        password = getpass("Plex password: ")
         try:
-            return super().__getattr__(item)
-        except AttributeError:
-            pass
-        # Default behaviour
-        return None
+            account = MyPlexAccount(user, password)
+            token = account.authenticationToken
+            plex = plex_server_login(url, token)
+        except plexapi.exceptions.Unauthorized:
+            logging.error("Unauthorized error connecting to Plex, check your credentials")
+            continue
+        except requests.exceptions.ConnectionError:
+            logging.error("Error connecting, check url")
+            continue
+
+        config["server"]["server_url"] = url
+        config["server"]["server_token"] = token
+        break
+
+    return plex
 
 
-def prefilled_default_config(configs):
-    default_config = base_config.copy()
-
-    # Set the token and server url
-    default_config['PLEX_SERVER'] = configs['url']
-    default_config['PLEX_TOKEN'] = configs['token']
-
-    # sections
-    default_config['PLEX_LIBRARIES'] = [
-        'Music',
-        'Audiobooks'
-    ]
-
-    return default_config
-
-
-def build_config():
+def get_config() -> PlexServer:
     if not os.path.exists(config_path):
-        print("Dumping default config to: %s" % config_path)
+        shutil.copy(template_path, config_path)
 
-        configs = dict(url='', token='', auto_delete=False)
+    t = toml_file.TOMLFile(config_path)
+    config = t.read()
+    logging.debug(pformat(config))
 
-        # Get URL
-        configs['url'] = input("Plex Server URL: ")
-
-        # Get Credentials for plex.tv
-        user = input("Plex Username: ")
-        password = getpass('Plex Password: ')
-
-        account = MyPlexAccount(user, password)
-        configs['token'] = account.authenticationToken
-
-        with open(config_path, 'w') as fp:
-            json.dump(prefilled_default_config(configs), fp,
-                      sort_keys=True, indent=2)
-
-        return True
-
+    plex: PlexServer = None
+    if (len(config["server"]["server_url"]) == 0) or (len(config["server"]["server_token"]) == 0):
+        plex = authenticate(config)
     else:
-        return False
+        plex = plex_server_login(config["server"]["server_url"], config["server"]["server_token"])
+        if plex is None:
+            plex = authenticate(config)
+
+    # write config file back out to disk
+    t.write(config)
+    checkcontinue(config)
+    return plex
 
 
-def dump_config():
-    if os.path.exists(config_path):
-        with open(config_path, 'w') as fp:
-            json.dump(cfg, fp, sort_keys=True, indent=2)
-        return True
-    else:
-        return False
+def checkcontinue(config: toml_file.TOMLDocument):
+    """Prints out list of libraries, gives user the option to exit or continue"""
+    typer.echo("Current libraries are:")
+    for lib in config["content"]["libraries"]:
+        typer.echo(f"  * {lib}")
+
+    typer.echo(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
+    response = input("Press [y] to continue, anything else to exit:")
+    if response.strip().lower() != "y":
+        exit(1)
 
 
-def load_config():
-    with open(config_path) as fp:
-        return AttrConfig(json.load(fp))
+def main():
+    get_config()
 
 
-def upgrade_settings(defaults, currents):
-    upgraded = False
-
-    def inner_upgrade(default, current, key=None):
-        sub_upgraded = False
-        merged = current.copy()
-        if isinstance(default, dict):
-            for k, v in default.items():
-                # missing k
-                if k not in current:
-                    merged[k] = v
-                    sub_upgraded = True
-                    if not key:
-                        print("Added %r config option: %s" % (str(k), str(v)))
-                    else:
-                        print("Added %r to config option %r: %s" %
-                              (str(k), str(key), str(v)))
-                    continue
-                # iterate children
-                if isinstance(v, dict) or isinstance(v, list):
-                    did_upgrade, merged[k] = inner_upgrade(default[k],
-                                                           current[k], key=k)
-                    sub_upgraded = did_upgrade if did_upgrade else sub_upgraded
-
-        elif isinstance(default, list) and key:
-            for v in default:
-                if v not in current:
-                    merged.append(v)
-                    sub_upgraded = True
-                    print("Added to config option %r: %s" % (str(key), str(v)))
-                    continue
-        return sub_upgraded, merged
-
-    upgraded, upgraded_settings = inner_upgrade(defaults, currents)
-    return upgraded, AttrConfig(upgraded_settings)
-
-
-############################################################
-# LOAD CFG
-############################################################
-
-# dump/load config
-if build_config():
-    print("Please edit the default configuration before running again!")
-    sys.exit(0)
-else:
-    tmp = load_config()
-    upgraded, cfg = upgrade_settings(base_config, tmp)
-    if upgraded:
-        dump_config()
-        print("New config options were added, adjust and restart!")
-        sys.exit(0)
+if __name__ == "__main__":
+    main()
