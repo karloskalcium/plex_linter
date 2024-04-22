@@ -4,10 +4,10 @@
 import json
 import os
 import sys
+from getpass import getpass
 
 from attrdict import AttrDict
 from plexapi.myplex import MyPlexAccount
-from getpass import getpass
 
 config_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 'config.json')
 base_config = {
@@ -88,7 +88,7 @@ def dump_config():
 
 
 def load_config():
-    with open(config_path, 'r') as fp:
+    with open(config_path) as fp:
         return AttrConfig(json.load(fp))
 
 

@@ -1,23 +1,7 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-blue.svg?style=flat-square)](https://www.python.org/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%203-blue.svg?style=flat-square)](https://github.com/karloskalcium/plex_linter/blob/master/LICENSE.md)
-[![Contributing](https://img.shields.io/badge/Contributing-gray.svg?style=flat-square)](CONTRIBUTING.md)
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/karloskalcium/md2enex/master/LICENSE)
+[![PYTHON](https://img.shields.io/badge/python-3.12-orange.svg)](https://docs.python.org/3.12/index.html)
 
----
-
-<!-- TOC depthFrom:1 depthTo:2 withLinks:1 updateOnSave:1 orderedList:0 -->
-
-- [Introduction](#introduction)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-  - [Sample](#sample)
-  - [Plex](#plex)
-- [Usage](#usage)
-- [Inspiration](#inspiration)
-
-<!-- /TOC -->
-
----
 
 # Introduction
 
@@ -29,8 +13,7 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 # Requirements
 
-1. Python 3.8+.
-
+1. Python 3.12+.
 1. Required Python modules (see below).
 
 

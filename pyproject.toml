@@ -1,0 +1,82 @@
+[tool.poetry]
+authors = ["karloskalcium"]
+description = "Checks the plex database for mismatches and duplicates of artists and albums"
+license = "MIT"
+name = "plex_linter"
+readme = "README.md"
+repository = "https://github.com/karloskalcium/plex_linter"
+version = "0.3.0"
+
+[tool.poetry.dependencies]
+attrdict = "^2.0.1"
+mutagen = "^1.47.0"
+plexapi = "^4.15.12"
+python = "^3.9"
+requests = "^2.31.0"
+tabulate = "^0.9.0"
+tomlkit = "^0.12.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^5.0.0"
+ruff = "^0.4.1"
+
+[tool.poetry.scripts]
+plex_linter = "plex_linter.plex_linter:main"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+# linting
+[tool.ruff.lint]
+select = [
+    # flake8-comprehensions
+    "C4",
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-pytest
+    "PT",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+# testing
+[tool.coverage.run]
+branch = true
+source = [
+    "md2enex",
+]
+omit = [
+    "**/tests/*",
+    "**/test_*",
+    "**/conftest*",
+    "**/__init__.py",
+    "**/__main__.py",
+]
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+ignore_errors = true
+[tool.coverage.html]
+directory = "results/coverage"
+[tool.pytest.ini_options]
+# Show extra test summary info as specified by chars (a)ll except passed
+# Output test results to junit.xml
+addopts = "-vvv --tb=long -ra --junitxml=results/unit/pytest-unit.xml --color=yes"
+testpaths = "tests"
+

@@ -2,12 +2,13 @@
 import logging
 import os
 import sys
-from collections import defaultdict, Counter
-from config import cfg
+from collections import Counter, defaultdict
 from pprint import pprint
+
+from mutagen import File, MutagenError
 from plexapi.server import PlexServer
-from mutagen import File
-from mutagen import MutagenError
+
+from .config import cfg
 
 ############################################################
 # INIT
