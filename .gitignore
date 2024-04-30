@@ -2,7 +2,7 @@
 .idea
 
 # configuration file
-config.toml
+plex_linter.config.toml
 
 # make
 .install.stamp

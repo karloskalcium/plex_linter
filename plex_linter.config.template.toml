@@ -1,5 +1,5 @@
 [server]
-server_url = "https://plex.your-server.com"
+server_url = ""
 server_token = ""
 
 [content]

@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-from getpass import getpass
 from inspect import getsourcefile
 from pprint import pformat
 
@@ -10,11 +9,16 @@ import requests
 import typer
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
+from rich.prompt import Confirm
 from tomlkit import toml_file
 
+from .non_empty_string_prompt import NonEmptyStringPrompt
+
 # Get the path of where this module lives
-config_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../config.toml")
-template_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../config.template.toml")
+config_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../plex_linter.config.toml")
+template_path = os.path.join(
+    os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../plex_linter.config.template.toml"
+)
 
 
 def plex_server_login(url: str, token: str) -> PlexServer:
@@ -46,9 +50,10 @@ def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
                 config["server"]["server_token"] = token
                 return plex
 
-            url = input("Plex server URL: ")
-            user = input("Plex username: ")
-            password = getpass("Plex password: ")
+            prompt = NonEmptyStringPrompt()
+            url = prompt.ask("Plex server URL")
+            user = prompt.ask("Plex username")
+            password = prompt.ask("Plex password", password=True)
 
             account = MyPlexAccount(user, password)
             token = account.authenticationToken
@@ -89,8 +94,8 @@ def checkcontinue(config: toml_file.TOMLDocument):
         typer.echo(f"  * {lib}")
 
     typer.echo(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
-    response = input("Press [y] to continue, anything else to exit: ")
-    if response.strip().lower() != "y":
+    response = Confirm.ask("Continue with these libraries?", default=True)
+    if not response:
         exit(1)
 
 
