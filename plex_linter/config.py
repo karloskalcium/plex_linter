@@ -33,28 +33,38 @@ def plex_server_login(url: str, token: str) -> PlexServer:
 
 def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
     """Gathers url, username and password from user, and repeats until successful authentication"""
-    """Server URL and valid token are placed in the config document when successful"""
-    plex = None
+    """Server URL and valid token are placed in the config when successful"""
+    url = config["server"]["server_url"]
+    token = config["server"]["server_token"]
     while True:
-        url = input("Plex server URL: ")
-        user = input("Plex username: ")
-        password = getpass("Plex password: ")
+        exception_happened = True
         try:
+            if (len(url) > 0) and (len(token) > 0):
+                # will throw error if login fails
+                plex = plex_server_login(url, token)
+                config["server"]["server_url"] = url
+                config["server"]["server_token"] = token
+                return plex
+
+            url = input("Plex server URL: ")
+            user = input("Plex username: ")
+            password = getpass("Plex password: ")
+
             account = MyPlexAccount(user, password)
             token = account.authenticationToken
-            plex = plex_server_login(url, token)
         except plexapi.exceptions.Unauthorized:
             logging.error("Unauthorized error connecting to Plex, check your credentials")
             continue
         except requests.exceptions.ConnectionError:
-            logging.error("Error connecting, check url")
+            # error already logged in plex_server_login method
             continue
-
-        config["server"]["server_url"] = url
-        config["server"]["server_token"] = token
-        break
-
-    return plex
+        else:
+            # from https://stackoverflow.com/a/49099889/4907881
+            exception_happened = False
+        finally:
+            if exception_happened:
+                url = ""
+                token = ""
 
 
 def get_config() -> PlexServer:
@@ -65,14 +75,7 @@ def get_config() -> PlexServer:
     config = t.read()
     logging.debug(pformat(config))
 
-    plex: PlexServer = None
-    if (len(config["server"]["server_url"]) == 0) or (len(config["server"]["server_token"]) == 0):
-        plex = authenticate(config)
-    else:
-        plex = plex_server_login(config["server"]["server_url"], config["server"]["server_token"])
-        if plex is None:
-            plex = authenticate(config)
-
+    plex = authenticate(config)
     # write config file back out to disk
     t.write(config)
     checkcontinue(config)
@@ -86,7 +89,7 @@ def checkcontinue(config: toml_file.TOMLDocument):
         typer.echo(f"  * {lib}")
 
     typer.echo(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
-    response = input("Press [y] to continue, anything else to exit:")
+    response = input("Press [y] to continue, anything else to exit: ")
     if response.strip().lower() != "y":
         exit(1)
 
