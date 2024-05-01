@@ -72,21 +72,6 @@ def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
                 token = ""
 
 
-def get_config() -> PlexServer:
-    if not os.path.exists(config_path):
-        shutil.copy(template_path, config_path)
-
-    t = toml_file.TOMLFile(config_path)
-    config = t.read()
-    logging.debug(pformat(config))
-
-    plex = authenticate(config)
-    # write config file back out to disk
-    t.write(config)
-    checkcontinue(config)
-    return plex
-
-
 def checkcontinue(config: toml_file.TOMLDocument):
     """Prints out list of libraries, gives user the option to exit or continue"""
     typer.echo("Current libraries are:")
@@ -99,9 +84,16 @@ def checkcontinue(config: toml_file.TOMLDocument):
         exit(1)
 
 
-def main():
-    get_config()
+def get_plex_server() -> tuple[PlexServer, toml_file.TOMLDocument]:
+    if not os.path.exists(config_path):
+        shutil.copy(template_path, config_path)
 
+    t = toml_file.TOMLFile(config_path)
+    config = t.read()
+    logging.debug(pformat(config))
 
-if __name__ == "__main__":
-    main()
+    plex = authenticate(config)
+    # write config file back out to disk
+    t.write(config)
+    checkcontinue(config)
+    return plex, config
