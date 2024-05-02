@@ -14,7 +14,7 @@ import typer
 from rich import print
 from rich.progress import track
 
-from .config import get_plex_server
+from .config import check_continue, get_plex_server
 
 # Setup Typer per https://github.com/tiangolo/typer/issues/201#issuecomment-747128376
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]}, add_completion=False)
@@ -145,7 +145,8 @@ def cli(
     ] = None,
 ) -> None:
     plex, config = get_plex_server()
-    print("Server login complete, starting to lint...")
+    print("Server login complete")
+    check_continue(config)
     for section_name in config["content"]["libraries"]:
         section = plex.library.section(section_name)
         dupes = get_album_dupes(section)

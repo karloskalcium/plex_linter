@@ -73,7 +73,7 @@ def authenticate(config: TOMLDocument) -> PlexServer:
                 token = ""
 
 
-def checkcontinue(config: TOMLDocument):
+def check_continue(config: TOMLDocument):
     """Prints out list of libraries, gives user the option to exit or continue"""
     print("Current libraries are:")
     for lib in config["content"]["libraries"]:
@@ -95,5 +95,5 @@ def get_plex_server() -> tuple[PlexServer, TOMLDocument]:
     plex = authenticate(config)
     # write config file back out to disk
     t.write(config)
-    checkcontinue(config)
+
     return plex, config
