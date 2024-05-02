@@ -1,0 +1,9 @@
+[server]
+server_url = ""
+server_token = ""
+
+[content]
+libraries = [
+  "Music",
+  "Audiobooks"
+]

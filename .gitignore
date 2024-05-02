@@ -1,21 +1,26 @@
-# User-specific stuff:
+# IDE:
 .idea
-.mypy_cache
-
-## File-based project format:
-*.iws
-
-# VirtualEnv
-ENV/
 
 # configuration file
-config.json
+plex_linter.config.toml
+
+# logs
+log/*
+!log/.keep
+
+# make
+.install.stamp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+
+# testing
+.coverage*
+results
+profile_output*
 
 # logs
 *.log*

@@ -1,6 +1,0 @@
-attrdict
-mutagen
-PlexAPI
-requests
-tabulate
-flake8

@@ -1,0 +1,100 @@
+[tool.poetry]
+authors = ["karloskalcium"]
+description = "Checks the plex database for duplicates and mismatches of artists, albums, and tracks"
+license = "MIT"
+name = "plex_linter"
+readme = "README.md"
+repository = "https://github.com/karloskalcium/plex_linter"
+version = "0.3.0"
+
+[tool.poetry.dependencies]
+mutagen = "^1.47.0"
+plexapi = "^4.15.12"
+python = "^3.12"
+requests = "^2.31.0"
+rich = "^13.7.1"
+tomlkit = "^0.12.4"
+typer = "^0.12.3"
+
+[tool.poetry.group.dev.dependencies]
+line-profiler = "^4.1.3"
+pyright = "^1.1.361"
+pytest-cov = "^5.0.0"
+ruff = "^0.4.1"
+toml-lint = {git = "https://github.com/yaegassy/toml-lint"}
+
+[tool.poetry.scripts]
+plex_linter = "plex_linter.plex_linter:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+include = ["plex_linter"]
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+# pythonVersion = "3.12"
+pythonPlatform = "All"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+# linting
+[tool.ruff.lint]
+select = [
+    # flake8-comprehensions
+    "C4",
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-pytest
+    "PT",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+# testing
+[tool.coverage.run]
+branch = true
+source = [
+    "plex_linter",
+]
+omit = [
+    "**/tests/*",
+    "**/test_*",
+    "**/conftest*",
+    "**/__init__.py",
+    "**/__main__.py",
+]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = "results/coverage"
+
+[tool.pytest.ini_options]
+# Show extra test summary info as specified by chars (a)ll except passed
+# Output test results to junit.xml
+addopts = "-vvv --tb=long -ra --junitxml=results/unit/pytest-unit.xml --color=yes"
+testpaths = "tests"
