@@ -44,6 +44,8 @@ clean:  ## Delete any directories, files or logs that are auto-generated
 	find . -type d -name "__pycache__" | xargs rm -rf {};
 	rm -f .install.stamp .coverage
 	rm -rf results dist .ruff_cache .pytest_cache
+	rm -f profile_output*
+	rm -f log/plex_linter.log
 
 .PHONY: deepclean
 deepclean: clean  ## Delete all poetry environments

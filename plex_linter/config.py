@@ -2,15 +2,16 @@ import logging
 import os
 import shutil
 from inspect import getsourcefile
-from pprint import pformat
 
 import plexapi.exceptions
 import requests
 import typer
 from plexapi.myplex import MyPlexAccount
 from plexapi.server import PlexServer
+from rich import print
 from rich.prompt import Confirm
-from tomlkit import toml_file
+from tomlkit.toml_document import TOMLDocument
+from tomlkit.toml_file import TOMLFile
 
 from .non_empty_string_prompt import NonEmptyStringPrompt
 
@@ -26,16 +27,16 @@ def plex_server_login(url: str, token: str) -> PlexServer:
     try:
         plex = PlexServer(url, token)
     except plexapi.exceptions.Unauthorized:
-        logging.error(f"Unauthorized error connecting to server {url}, check your credentials")
+        logging.exception(f"Unauthorized error connecting to server {url}, check your credentials")
         raise
     except requests.exceptions.ConnectionError:
-        logging.error(f"Error connecting to {url}, check the URL provided")
+        logging.exception(f"Error connecting to {url}, check the URL provided")
         raise
 
     return plex
 
 
-def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
+def authenticate(config: TOMLDocument) -> PlexServer:
     """Gathers url, username and password from user, and repeats until successful authentication"""
     """Server URL and valid token are placed in the config when successful"""
     url = config["server"]["server_url"]
@@ -58,7 +59,7 @@ def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
             account = MyPlexAccount(user, password)
             token = account.authenticationToken
         except plexapi.exceptions.Unauthorized:
-            logging.error("Unauthorized error connecting to Plex, check your credentials")
+            logging.exception("Unauthorized error connecting to Plex, check your credentials")
             continue
         except requests.exceptions.ConnectionError:
             # error already logged in plex_server_login method
@@ -72,25 +73,24 @@ def authenticate(config: toml_file.TOMLDocument) -> PlexServer:
                 token = ""
 
 
-def checkcontinue(config: toml_file.TOMLDocument):
+def checkcontinue(config: TOMLDocument):
     """Prints out list of libraries, gives user the option to exit or continue"""
-    typer.echo("Current libraries are:")
+    print("Current libraries are:")
     for lib in config["content"]["libraries"]:
-        typer.echo(f"  * {lib}")
+        print(f"  * {lib}")
 
-    typer.echo(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
+    print(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
     response = Confirm.ask("Continue with these libraries?", default=True)
     if not response:
-        exit(1)
+        raise typer.Exit(code=1)
 
 
-def get_plex_server() -> tuple[PlexServer, toml_file.TOMLDocument]:
+def get_plex_server() -> tuple[PlexServer, TOMLDocument]:
     if not os.path.exists(config_path):
         shutil.copy(template_path, config_path)
 
-    t = toml_file.TOMLFile(config_path)
+    t = TOMLFile(config_path)
     config = t.read()
-    logging.debug(pformat(config))
 
     plex = authenticate(config)
     # write config file back out to disk

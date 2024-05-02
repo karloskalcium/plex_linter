@@ -15,6 +15,7 @@ requests = "^2.31.0"
 rich = "^13.7.1"
 tomlkit = "^0.12.4"
 typer = "^0.12.3"
+pyright = "^1.1.361"
 
 [tool.poetry.group.dev.dependencies]
 pytest-cov = "^5.0.0"
@@ -22,6 +23,7 @@ ruff = "^0.4.1"
 toml-lint = {git = "https://github.com/yaegassy/toml-lint"}
 pyright = "^1.1.360"
 line-profiler = "^4.1.3"
+pympler = "^1.0.1"
 
 [tool.poetry.scripts]
 plex_linter = "plex_linter.plex_linter:main"
@@ -32,16 +34,12 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 include = ["plex_linter"]
-# exclude = ["**/__pycache__"]
-# ignore = ["src/oldstuff"]
-# defineConstant = { DEBUG = true }
-# stubPath = "src/stubs"
 
 reportMissingImports = true
 reportMissingTypeStubs = false
 
 # pythonVersion = "3.12"
-# pythonPlatform = "All"
+pythonPlatform = "All"
 
 [tool.ruff]
 line-length = 120

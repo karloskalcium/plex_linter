@@ -4,6 +4,10 @@
 # configuration file
 plex_linter.config.toml
 
+# logs
+log/*
+!log/.keep
+
 # make
 .install.stamp
 
@@ -16,6 +20,7 @@ __pycache__/
 # testing
 .coverage*
 results
+profile_output*
 
 # logs
 *.log*

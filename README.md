@@ -2,86 +2,62 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/karloskalcium/md2enex/master/LICENSE)
 [![PYTHON](https://img.shields.io/badge/python-3.12-orange.svg)](https://docs.python.org/3.12/index.html)
 
-
 # Introduction
 
-Plex Linter is a python script that looks for various potential issues in your library, such as 
-  * Duplicate album titles (that could suggest albums that have been incorrectly split)
-  * Duplicate artists (for artists that have been split)
-  * Tracks without titles (sometimes Plex metadata deletes track titles)
-  * Tracks linked to artists with Plex metadata that differ from what the MP3 tags say.
+Plex Linter is a python script that looks for various potential issues in your library, such as
+
+- Duplicate album titles (for albums that have been incorrectly split)
+- Duplicate artists (for artists that have been split)
+- Tracks without titles (sometimes Plex metadata deletes track titles)
+- Tracks linked to artists with Plex metadata that differ from what the MP3 tags say.
 
 # Requirements
 
-1. Python 3.12+.
-1. Required Python modules (see below).
+1. Python 3.12+
+1. [Poetry](https://python-poetry.org/)
 
-
-# Installation
+# Developer setup
 
 _Note: Steps below are for OSX (other operating systems will require tweaking to the steps)._
 
+1. Install [Python 3.12](https://www.python.org/downloads/release/python-3123/), you can use [asdf](https://asdf-vm.com/) to manage multiple python versions if needed.
+1. Install `poetry` according to the [instructions](https://python-poetry.org/docs/#installation)
 1. Clone the `plex_linter` repo.
 
-   ```
-   git clone https://github.com/karloskalcium/plex_linter
-   ```
+```commandline
+git clone https://github.com/karloskalcium/plex_linter
+```
 
-1. Create and configure virtual environment.
-Make sure you have the correct version of python. [Pyenv](https://github.com/pyenv/pyenv) manages python versions.
-  1. `pyenv install 3.10.6` (use version in `.python-version`)
-  2. Make sure to configure your shell's environment for pyenv following instructions in step 2
-    [here](https://github.com/pyenv/pyenv#basic-github-checkout).
-  3. Once this is done, start a new shell and run `pyenv version` and `python --version` in the terminal from the root directory of the project, both should read `3.10.6`
+1. Setup the virtual environment
 
-1. Go into the Plex Linter folder.
+```commandline
+cd plex_linter]
+make python-install
+source ENV/bin/activate
+```
 
-   ```
-   cd plex_linter
-   ```
+# Usage
 
-1. Install the required python modules.
+1. Start the `plex_linter`, it will check for a config file, create a new one if it doesn't exist, and ask you to fill your Plex server URL and credentials to generate a Plex Access Token .
 
-   ```
-  $ make python-install
-  $ source ENV/bin/activate
-   ```
-
-1. Generate a `config.json` file.
-
-   ```
-   ./plex_linter.sh
-   ```
-
-1. Fill in Plex URL and credentials at the prompt to generated a Plex Access Token (optional).
-
-   ```
-   Dumping default config to: ./config.json
-   Plex Server URL: http://localhost:32400
-   Plex Username: your_plex_username
-   Plex Password: your_plex_password
-   Please edit the default configuration before running again!
-   ```
-
-1. Configure the `config.json` file.
-
-   ```
-   open config.json
-   ```
-
+```commandline
+poetry run plex_linter
+```
 
 # Configuration
 
 ## Sample
 
-```json
-  "PLEX_LIBRARIES": [
+```toml
+[server]
+server_url = "http://plex.your-server.com"
+server_token = "<your-token>"
+
+[content]
+libraries = [
     "Music",
     "Audiobooks"
-  ],
-  "PLEX_SERVER": "https://plex.your-server.com",
-  "PLEX_TOKEN": "<your-token>"
-}
+]
 ```
 
 ## Plex
@@ -94,21 +70,11 @@ Make sure you have the correct version of python. [Pyenv](https://github.com/pye
 
      ![](https://i.imgur.com/JFRTD1m.png)
 
-1. Under `PLEX_LIBRARIES`, type in the Plex *Library Name* (exactly). Note that the linter only works for music libraries currently.
-
-   - Format:
-
-     ```
-     "PLEX_LIBRARIES": [
-       "LIBRARY_NAME_1"
-       "LIBRARY_NAME_2"
-     ],
-     ```
+1. Under `libraries`, type in the Plex *Library Name* (exactly). Note that the linter only works for music libraries currently.
 
 ### Plex Server URL
 
 - Your Plex server's URL.
-
 - This can be any format (e.g. <http://localhost:32400>, <https://plex.domain.ltd>).
 
 ### Plex Token
@@ -121,22 +87,8 @@ Make sure you have the correct version of python. [Pyenv](https://github.com/pye
 
    - Visit https://support.plex.tv/hc/en-us/articles/204059436-Finding-an-authentication-token-X-Plex-Token
 
-1. Add the Plex Access Token to `"PLEX_TOKEN"` so that it now appears as `"PLEX_TOKEN": "abcd1234",`.
-
-   - Note: Make sure it is within the quotes (`"`) and there is a comma (`,`) after it.
-
-
-# Usage
-
-Simply run the script/command:
-
-```
-./plex_linter.py
-```
-
-***
+______________________________________________________________________
 
 # Inspiration
 
 This project started as a fork of https://github.com/l3uddz/plex_dupefinder and used a lot of that code as a starting point.
-
