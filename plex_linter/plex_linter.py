@@ -15,6 +15,7 @@ from plexapi.library import LibrarySection
 from rich import print
 from rich.progress import track
 
+from ._utils import xstr
 from .config import check_continue, get_plex_server
 
 # Setup Typer per https://github.com/tiangolo/typer/issues/201#issuecomment-747128376
@@ -30,13 +31,17 @@ class AppConfig(Enum):
 # Setup logger
 # Grabs current module, goes up one directory, then appends log directory to generate logfile name
 log_filename = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))), "log/" + AppConfig.APP_NAME.value + ".log"
+    os.path.dirname(os.path.dirname(os.path.abspath(xstr(getsourcefile(lambda: 0))))),
+    "log/" + AppConfig.APP_NAME.value + ".log",
 )
 logging.basicConfig(
-    filename=log_filename, level=logging.DEBUG, format="[%(asctime)s] %(levelname)s - %(message)s", datefmt="%H:%M:%S"
+    filename=log_filename,
+    level=logging.DEBUG,
+    format="[%(asctime)s] %(levelname)-8s %(name)s: %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
 )
 logging.getLogger("urllib3.connectionpool").disabled = True
-log = logging.getLogger(AppConfig.APP_NAME.value)
+log = logging.getLogger(__name__)
 
 
 ############################################################
@@ -103,9 +108,11 @@ def get_mismatched_artists(section: LibrarySection) -> list:
                 except mutagen.MutagenError:
                     log.exception(f"Exception caught trying to read {file_name}")
                     error_count += 1
-                    if error_count > 100:
-                        print(f"[logging.level.error]Error: {error_count} errors caught trying to access files "
-                              + f"so we are giving up. Check {log_filename} for more details.")
+                    if error_count > 50:
+                        print(
+                            f"[logging.level.error]Error: {error_count} errors caught trying to access files "
+                            + f"so we are giving up. Check {log_filename} for more details."
+                        )
                         return result
 
     if error_count > 0:
@@ -119,15 +126,6 @@ def get_mismatched_artists(section: LibrarySection) -> list:
 ############################################################
 # MISC METHODS
 ############################################################
-
-
-# from https://stackoverflow.com/q/1034573/4907881
-def xstr(s) -> str:
-    """Returns string of object or empty string if None"""
-    if s is None:
-        return ""
-    else:
-        return str(s)
 
 
 def print_list(my_list: list, header_message: str) -> None:
@@ -158,9 +156,10 @@ def cli(
     ] = None,
 ) -> None:
     plex, config = get_plex_server()
-    print("Server login complete")
+    print("Server login successful")
     check_continue(config)
     for section_name in config["content"]["libraries"]:
+        log.debug(f"Starting to lint {section_name}")
         section = plex.library.section(section_name)
         dupes = get_album_dupes(section)
         print(f"Found {len(dupes)} album name dupes in library {section_name}")
@@ -175,13 +174,12 @@ def cli(
         print_list(no_titles, f"Found {len(no_titles)} tracks without titles in library {section_name}")
 
         if local:
-            mismatched_artists, error_count = get_mismatched_artists(section)
+            mismatched_artists = get_mismatched_artists(section)
             print_list(
                 mismatched_artists,
                 f"Found {len(mismatched_artists)} tracks with potentially "
                 + f"mismatched artists in library {section_name}",
             )
-
 
     print("Done!")
 

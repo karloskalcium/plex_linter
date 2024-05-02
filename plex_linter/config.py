@@ -13,13 +13,16 @@ from rich.prompt import Confirm
 from tomlkit.toml_document import TOMLDocument
 from tomlkit.toml_file import TOMLFile
 
+from ._utils import xstr
 from .non_empty_string_prompt import NonEmptyStringPrompt
 
-# Get the path of where this module lives
-config_path = os.path.join(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../plex_linter.config.toml")
-template_path = os.path.join(
-    os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../plex_linter.config.template.toml"
-)
+# set up module logger
+log = logging.getLogger(__name__)
+
+# Parent dir of where this module lives
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(xstr(getsourcefile(lambda: 0)))))
+config_path = os.path.join(parent_dir, "plex_linter.config.toml")
+template_path = os.path.join(parent_dir, "plex_linter.config.template.toml")
 
 
 def plex_server_login(url: str, token: str) -> PlexServer:
@@ -27,10 +30,10 @@ def plex_server_login(url: str, token: str) -> PlexServer:
     try:
         plex = PlexServer(url, token)
     except plexapi.exceptions.Unauthorized:
-        logging.exception(f"Unauthorized error connecting to server {url}, check your credentials")
+        log.exception(f"Unauthorized error connecting to server {url}, check your credentials")
         raise
     except requests.exceptions.ConnectionError:
-        logging.exception(f"Error connecting to {url}, check the URL provided")
+        log.exception(f"Error connecting to {url}, check the URL provided")
         raise
 
     return plex
@@ -49,6 +52,7 @@ def authenticate(config: TOMLDocument) -> PlexServer:
                 plex = plex_server_login(url, token)
                 config["server"]["server_url"] = url
                 config["server"]["server_token"] = token
+                log.debug(f"Successfully logged into plex server at {url}")
                 return plex
 
             prompt = NonEmptyStringPrompt()
@@ -59,7 +63,7 @@ def authenticate(config: TOMLDocument) -> PlexServer:
             account = MyPlexAccount(user, password)
             token = account.authenticationToken
         except plexapi.exceptions.Unauthorized:
-            logging.exception("Unauthorized error connecting to Plex, check your credentials")
+            log.exception("Unauthorized error connecting to Plex, check your credentials")
             continue
         except requests.exceptions.ConnectionError:
             # error already logged in plex_server_login method
@@ -79,7 +83,7 @@ def check_continue(config: TOMLDocument):
     for lib in config["content"]["libraries"]:
         print(f"  * {lib}")
 
-    print(f"If these aren't correct, edit {os.path.abspath(config_path)} to add the target libraries.")
+    print(f"If these aren't correct, edit {config_path} to add the target libraries.")
     response = Confirm.ask("Continue with these libraries?", default=True)
     if not response:
         raise typer.Exit(code=1)
