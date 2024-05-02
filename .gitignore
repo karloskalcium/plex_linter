@@ -2,7 +2,7 @@
 .idea
 
 # configuration file
-plex_linter.config.toml
+plex_linter.toml
 
 # logs
 log/*

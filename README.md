@@ -10,6 +10,7 @@ Plex Linter is a python script that looks for various potential issues in your l
 - Duplicate artists (for artists that have been split)
 - Tracks without titles (sometimes Plex metadata deletes track titles)
 - Tracks linked to artists with Plex metadata that differ from what the MP3 tags say (requires running on the plex server and using the `--local` flag)
+  - Note that the linter only works for music libraries currently
 
 ## Setup
 
@@ -18,13 +19,13 @@ Plex Linter is a python script that looks for various potential issues in your l
 1. Python 3.12+
 1. [Poetry](https://python-poetry.org/)
 
-_Note: Steps below are for OSX (other operating systems will require tweaking to the steps)._
+_Note: Steps below are for OSX (other operating systems will require tweaking to the steps)_
 
 1. Install [Python 3.12](https://www.python.org/downloads/release/python-3123/), you can use [asdf](https://asdf-vm.com/) to manage multiple python versions if needed
 
 1. Install `poetry` according to the [instructions](https://python-poetry.org/docs/#installation)
 
-1. Clone the `plex_linter` repo.
+1. Clone the `plex_linter` repo
 
    ```commandline
    git clone https://github.com/karloskalcium/plex_linter
@@ -56,10 +57,10 @@ _Note: Steps below are for OSX (other operating systems will require tweaking to
 ### Sample
 
 ```toml
-# plex_linter.config.toml
+# plex_linter.toml
 [server]
 server_url = "http://plex.your-server.com"
-server_token = "<your-token>"
+server_token = "{your-X-Plex-Token}"
 
 [content]
 libraries = [
@@ -78,20 +79,20 @@ libraries = [
 
      ![](https://i.imgur.com/JFRTD1m.png)
 
-1. Under `libraries`, type in the Plex *Library Name* (exactly).
+1. Under `libraries`, type in the Plex *Library Name* (exactly)
 
-1. Note that the linter only works for music libraries currently.
+1. Note that the linter only works for music libraries currently
 
 #### Plex Server URL
 
 - Your Plex server's URL
-- This can be any format (e.g. <http://localhost:32400>, <https://plex.domain.ltd>)
+  - This can be any format (e.g. <http://localhost:32400>, <https://plex.domain.ltd>)
 
 #### Plex Token
 
 1. Obtain a Plex Access Token:
 
-   - Fill in the Plex URL and Plex login credentials, at the prompt, on first run. This only occurs when there is no valid `plex_linter.config.toml` present.
+   - Fill in the Plex URL and Plex login credentials, at the prompt, on first run. This only occurs when there is no valid `plex_linter.toml` present.
 
      or
 

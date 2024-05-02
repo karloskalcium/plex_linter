@@ -21,8 +21,8 @@ log = logging.getLogger(__name__)
 
 # Parent dir of where this module lives
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(xstr(getsourcefile(lambda: 0)))))
-config_path = os.path.join(parent_dir, "plex_linter.config.toml")
-template_path = os.path.join(parent_dir, "plex_linter.config.template.toml")
+config_path = os.path.join(parent_dir, "plex_linter.toml")
+template_path = os.path.join(parent_dir, "plex_linter.template.toml")
 
 
 def plex_server_login(url: str, token: str) -> PlexServer:
