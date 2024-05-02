@@ -11,6 +11,7 @@ from typing import Annotated, Optional
 import line_profiler
 import mutagen
 import typer
+from plexapi.library import LibrarySection
 from rich import print
 from rich.progress import track
 
@@ -27,8 +28,9 @@ class AppConfig(Enum):
 
 
 # Setup logger
+# Grabs current module, goes up one directory, then appends log directory to generate logfile name
 log_filename = os.path.join(
-    os.path.dirname(os.path.abspath(getsourcefile(lambda: 0))), "../log/" + AppConfig.APP_NAME.value + ".log"
+    os.path.dirname(os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))), "log/" + AppConfig.APP_NAME.value + ".log"
 )
 logging.basicConfig(
     filename=log_filename, level=logging.DEBUG, format="[%(asctime)s] %(levelname)s - %(message)s", datefmt="%H:%M:%S"
@@ -43,7 +45,7 @@ log = logging.getLogger(AppConfig.APP_NAME.value)
 
 
 @line_profiler.profile
-def get_album_dupes(section) -> dict:
+def get_album_dupes(section: LibrarySection) -> dict:
     albums = section.albums()
     album_dict = defaultdict(list)
     for a in albums:
@@ -53,7 +55,7 @@ def get_album_dupes(section) -> dict:
 
 
 @line_profiler.profile
-def get_artist_dupes(section) -> list:
+def get_artist_dupes(section: LibrarySection) -> list:
     artists = section.searchArtists()
     artists_names = [a.title for a in artists]
     count = Counter(artists_names)
@@ -62,7 +64,7 @@ def get_artist_dupes(section) -> list:
 
 
 @line_profiler.profile
-def get_tracks_without_titles(section) -> list:
+def get_tracks_without_titles(section: LibrarySection) -> list:
     tracks = section.searchTracks(filters={"title=": ""})
     result = []
     for t in tracks:
@@ -72,9 +74,10 @@ def get_tracks_without_titles(section) -> list:
 
 
 @line_profiler.profile
-def get_mismatched_artists(section) -> list:
+def get_mismatched_artists(section: LibrarySection) -> list:
     albums = section.albums()
     result = []
+    error_count = 0
     for a in track(albums, "Checking for mismatched artists"):
         album_artist = a.artist().title
         if album_artist == "Various Artists":
@@ -99,7 +102,17 @@ def get_mismatched_artists(section) -> list:
                         )
                 except mutagen.MutagenError:
                     log.exception(f"Exception caught trying to read {file_name}")
+                    error_count += 1
+                    if error_count > 100:
+                        print(f"[logging.level.error]Error: {error_count} errors caught trying to access files "
+                              + f"so we are giving up. Check {log_filename} for more details.")
+                        return result
 
+    if error_count > 0:
+        print(
+            f"[logging.level.warning]Warning: {error_count} errors detected when "
+            + f"trying to read files from disk. See {log_filename} for more details."
+        )
     return result
 
 
@@ -125,7 +138,7 @@ def print_list(my_list: list, header_message: str) -> None:
 
 def version_callback(value: bool):
     if value:
-        typer.echo(AppConfig.APP_NAME.value + " (version " + AppConfig.APP_VERSION.value + ")")
+        print(AppConfig.APP_NAME.value + " (version " + AppConfig.APP_VERSION.value + ")")
         raise typer.Exit(code=0)
 
 
@@ -162,12 +175,13 @@ def cli(
         print_list(no_titles, f"Found {len(no_titles)} tracks without titles in library {section_name}")
 
         if local:
-            mismatched_artists = get_mismatched_artists(section)
+            mismatched_artists, error_count = get_mismatched_artists(section)
             print_list(
                 mismatched_artists,
                 f"Found {len(mismatched_artists)} tracks with potentially "
                 + f"mismatched artists in library {section_name}",
             )
+
 
     print("Done!")
 
