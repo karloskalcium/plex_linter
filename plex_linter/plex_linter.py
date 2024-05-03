@@ -16,7 +16,7 @@ from rich import print
 from rich.progress import track
 
 from ._utils import xstr
-from .config import check_continue, get_plex_server
+from .config import LinterConfig
 
 # Setup Typer per https://github.com/tiangolo/typer/issues/201#issuecomment-747128376
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]}, add_completion=False)
@@ -25,7 +25,7 @@ app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]}, add_
 # Enum for App Configuration Constants
 class AppConfig(Enum):
     APP_NAME = "plex_linter"
-    APP_VERSION = importlib.metadata.version(APP_NAME)
+    APP_VERSION = importlib.metadata.version(str(APP_NAME))
 
 
 # Setup logger
@@ -155,9 +155,10 @@ def cli(
         typer.Option("--version", "-v", callback=version_callback, help="Program version number"),
     ] = None,
 ) -> None:
-    plex, config = get_plex_server()
+    lcfg = LinterConfig()
+    plex, config = lcfg.get_plex_server()
     print("Server login successful")
-    check_continue(config)
+    lcfg.check_continue(config)
     for section_name in config["content"]["libraries"]:
         log.debug(f"Starting to lint {section_name}")
         section = plex.library.section(section_name)
