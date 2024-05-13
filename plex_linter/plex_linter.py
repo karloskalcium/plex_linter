@@ -5,6 +5,7 @@ import os
 from collections import Counter, defaultdict
 from enum import Enum
 from inspect import getsourcefile
+from os.path import dirname
 from pprint import pformat
 from typing import Annotated, Optional
 
@@ -79,41 +80,56 @@ def get_tracks_without_titles(section: LibrarySection) -> list:
 
 
 @line_profiler.profile
-def get_mismatched_artists(section: LibrarySection) -> list:
+def get_mismatched_artists(section: LibrarySection) -> dict:
     albums = section.albums()
-    result = []
+    result = {"albumartistsort-set": [], "artist-mismatch": [], "various-artists-mismatch": []}
     error_count = 0
     for a in track(albums, "Checking for mismatched artists"):
-        album_artist = a.artist().title
-        if album_artist == "Various Artists":
-            pass
-        else:
-            tracks = a.tracks()
-            for t in tracks:
+        plex_album_artist = a.artist().title
+        tracks = a.tracks()
+        for t in tracks:
+            try:
                 file_name = next(t.iterParts()).file
-                try:
-                    tags = mutagen.File(file_name, easy=True)
-                    tag_album_artist = tags.get("albumartist", [""])[0]
-                    tag_artist = tags.get("artist", [""])[0]
-                    if tag_album_artist != album_artist and tag_artist != album_artist:
-                        result.append(
-                            (
-                                t.title,
-                                t.album().title,
-                                "plex-album-artist: " + album_artist,
-                                "tag-album-artist: " + tag_album_artist,
-                                "tag-artist:" + tag_artist,
-                            )
-                        )
-                except mutagen.MutagenError:
-                    log.exception(f"Exception caught trying to read {file_name}")
-                    error_count += 1
-                    if error_count > 50:
-                        print(
-                            f"[logging.level.error]Error: {error_count} errors caught trying to access files "
-                            + f"so we are giving up. Check {log_filename} for more details."
-                        )
-                        return result
+                media_file = mutagen.File(file_name, easy=True)
+                tag_album_artist = media_file.get("albumartist", [""])[0]
+                tag_artist = media_file.get("artist", [""])[0]
+                tag_album_artist_sort = media_file.get("albumartistsort", [""])[0]
+
+                track_details = (
+                    t.title,
+                    a.title,
+                    "plex-album-artist: " + plex_album_artist,
+                    "tag-album-artist: " + tag_album_artist,
+                    "tag-album-artist-sort: '" + tag_album_artist_sort + "'",
+                    "tag-artist: " + tag_artist,
+                )
+
+                # from plex forums. apparently albumartistsort being set can cause issues
+                # https://forums.plex.tv/t/various-artists-albums-tagged-as-different-random-library-artist/573618/15
+                if tag_album_artist_sort != "":
+                    result["albumartistsort-set"].append(track_details)
+
+                # assuming track is in 'artistname / albumname / track.mp3"
+                artist_folder_name = str(dirname(dirname(file_name)))
+
+                if (
+                    plex_album_artist == "Various Artists"
+                    or artist_folder_name == "Various Artists"
+                    or artist_folder_name == "Compilations"
+                ):
+                    if plex_album_artist != "Various Artists" or tag_album_artist != "Various Artists":
+                        result["various-artists-mismatch"].append(track_details)
+                elif tag_album_artist != plex_album_artist and tag_artist != plex_album_artist:
+                    result["artist-mismatch"].append(track_details)
+            except mutagen.MutagenError:
+                log.exception(f"Exception caught trying to read {file_name}")
+                error_count += 1
+                if error_count > 50:
+                    print(
+                        f"[logging.level.error]Error: {error_count} errors caught trying to access files "
+                        + f"so we are giving up. Check {log_filename} for more details."
+                    )
+                    return result
 
     if error_count > 0:
         print(
@@ -177,11 +193,20 @@ def cli(
         if local:
             mismatched_artists = get_mismatched_artists(section)
             print_list(
-                mismatched_artists,
-                f"Found {len(mismatched_artists)} tracks with potentially "
+                mismatched_artists["artist-mismatch"],
+                f"Found {len(mismatched_artists["artist-mismatch"])} tracks with potentially "
                 + f"mismatched artists in library {section_name}",
             )
-
+            print_list(
+                mismatched_artists["various-artists-mismatch"],
+                f"Found {len(mismatched_artists["various-artists-mismatch"])} tracks with potentially "
+                + f"bad various items tags in library {section_name}",
+            )
+            print_list(
+                mismatched_artists["albumartistsort-set"],
+                f"Found {len(mismatched_artists["albumartistsort-set"])} tracks with albumartistsort "
+                + f"tag set in library {section_name}",
+            )
     print("Done!")
 
 
