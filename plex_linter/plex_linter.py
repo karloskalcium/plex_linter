@@ -5,7 +5,7 @@ import os
 from collections import Counter, defaultdict
 from enum import Enum
 from inspect import getsourcefile
-from os.path import dirname
+from os.path import basename, dirname
 from pprint import pformat
 from typing import Annotated, Optional
 
@@ -110,7 +110,7 @@ def get_mismatched_artists(section: LibrarySection) -> dict:
                     result["albumartistsort-set"].append(track_details)
 
                 # assuming track is in 'artistname / albumname / track.mp3"
-                artist_folder_name = str(dirname(dirname(file_name)))
+                artist_folder_name = str(basename(dirname(dirname(file_name))))
 
                 if (
                     plex_album_artist == "Various Artists"
