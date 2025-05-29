@@ -194,17 +194,17 @@ def cli(
             mismatched_artists = get_mismatched_artists(section)
             print_list(
                 mismatched_artists["artist-mismatch"],
-                f"Found {len(mismatched_artists["artist-mismatch"])} tracks with potentially "
+                f"Found {len(mismatched_artists['artist-mismatch'])} tracks with potentially "
                 + f"mismatched artists in library {section_name}",
             )
             print_list(
                 mismatched_artists["various-artists-mismatch"],
-                f"Found {len(mismatched_artists["various-artists-mismatch"])} tracks with potentially "
+                f"Found {len(mismatched_artists['various-artists-mismatch'])} tracks with potentially "
                 + f"bad various items tags in library {section_name}",
             )
             print_list(
                 mismatched_artists["albumartistsort-set"],
-                f"Found {len(mismatched_artists["albumartistsort-set"])} tracks with albumartistsort "
+                f"Found {len(mismatched_artists['albumartistsort-set'])} tracks with albumartistsort "
                 + f"tag set in library {section_name}",
             )
     print("Done!")

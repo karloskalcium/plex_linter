@@ -1,21 +1,17 @@
 ---
 default_language_version:
-  python: python3.12
+  python: python3.13
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c  # frozen: v4.6.0
+    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
     hooks:
       - id: check-yaml
       - id: check-json
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
-  - repo: https://github.com/rhysd/actionlint
-    rev: c6bd06256dd700a45e483869bcdcf304239393a6  # frozen: v1.6.27
-    hooks:
-      - id: actionlint-system
   - repo: https://github.com/executablebooks/mdformat
-    rev: 08fba30538869a440b5059de90af03e3502e35fb  # frozen: 0.7.17
+    rev: ff29be1a1ba8029d9375882aa2c812b62112a593  # frozen: 0.7.22
     hooks:
       - id: mdformat
         additional_dependencies:
