@@ -1,6 +1,6 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-blue.svg?style=flat-square)](https://www.python.org/)
-[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/karloskalcium/md2enex/master/LICENSE)
-[![PYTHON](https://img.shields.io/badge/python-3.12-orange.svg)](https://docs.python.org/3.12/index.html)
+[![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/karloskalcium/plex_linter/refs/heads/master/LICENSE)
+[![PYTHON](https://img.shields.io/badge/python-3.13-orange.svg)](https://docs.python.org/3.13/index.html)
 
 # Introduction
 
@@ -16,24 +16,22 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 ### Requirements
 
-1. Python 3.12+
+1. Python 3.13
 1. [Poetry](https://python-poetry.org/)
 
 _Note: Steps below are for OSX (other operating systems will require tweaking to the steps)_
 
-1. Install [Python 3.12](https://www.python.org/downloads/release/python-3123/), you can use [asdf](https://asdf-vm.com/) to manage multiple python versions if needed
-
-1. Install `poetry` according to the [instructions](https://python-poetry.org/docs/#installation)
+1. Install `uv` according to the [instructions](https://docs.astral.sh/uv/getting-started/installation/)
 
 1. Clone the `plex_linter` repo
 
-   ```commandline
+   ```bash
    git clone https://github.com/karloskalcium/plex_linter
    ```
 
-1. Setup the virtual environment
+1. Install the dependencies
 
-   ```commandline
+   ```bash
    cd plex_linter
    make install
    ```
@@ -43,13 +41,13 @@ _Note: Steps below are for OSX (other operating systems will require tweaking to
 1. Start the `plex_linter`, it will check for a config file, create a new one if it doesn't exist, and ask you to fill your Plex server URL and credentials to generate a Plex Access Token
 
    ```commandline
-   poetry run plex_linter
+   uv run plex_linter
    ```
 
 1. If you are running on the plex server and want to check for mismatched tags, pass the `--local` flag as follows:
 
    ```commandline
-   poetry run plex_linter --local
+   uv run plex_linter --local
    ```
 
 ## Configuration
