@@ -3,8 +3,6 @@ import importlib.metadata
 import logging
 import os
 from collections import Counter, defaultdict
-from enum import Enum
-from os.path import basename, dirname
 from pprint import pformat
 from typing import Annotated
 
@@ -20,18 +18,11 @@ from .config import LinterConfig
 # Setup Typer per https://github.com/tiangolo/typer/issues/201#issuecomment-747128376
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]}, add_completion=False)
 
-
-# Enum for App Configuration Constants
-class AppConfig(Enum):
-    APP_NAME = "plex_linter"
-    APP_VERSION = importlib.metadata.version(str(APP_NAME))
-
-
-# Setup logger
-# Grabs current module, goes up one directory, then appends log directory to generate logfile name
+APP_NAME = "plex_linter"
+APP_VERSION = importlib.metadata.version(APP_NAME)
 log_filename = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "log/" + AppConfig.APP_NAME.value + ".log",
+    f"log/{APP_NAME}.log",
 )
 logging.basicConfig(
     filename=log_filename,
@@ -41,11 +32,6 @@ logging.basicConfig(
 )
 logging.getLogger("urllib3.connectionpool").disabled = True
 log = logging.getLogger(__name__)
-
-
-############################################################
-# PLEX METHODS
-############################################################
 
 
 @line_profiler.profile
@@ -70,11 +56,7 @@ def get_artist_dupes(section: LibrarySection) -> list:
 @line_profiler.profile
 def get_tracks_without_titles(section: LibrarySection) -> list:
     tracks = section.searchTracks(filters={"title=": ""})
-    result = []
-    for t in tracks:
-        result.append((t.index, t.album().title, t.artist().title))
-
-    return result
+    return [(t.index, t.album().title, t.artist().title) for t in tracks]
 
 
 @line_profiler.profile
@@ -98,19 +80,19 @@ def get_mismatched_artists(section: LibrarySection) -> dict:
                 track_details = (
                     t.title,
                     a.title,
-                    "plex-album-artist: " + plex_album_artist,
-                    "tag-album-artist: " + tag_album_artist,
-                    "tag-album-artist-sort: '" + tag_album_artist_sort + "'",
-                    "tag-artist: " + tag_artist,
+                    f"plex-album-artist: {plex_album_artist}",
+                    f"tag-album-artist: {tag_album_artist}",
+                    f"tag-album-artist-sort: '{tag_album_artist_sort}'",
+                    f"tag-artist: {tag_artist}",
                 )
 
                 # from plex forums. apparently albumartistsort being set can cause issues
                 # https://forums.plex.tv/t/various-artists-albums-tagged-as-different-random-library-artist/573618/15
-                if tag_album_artist_sort != "":
+                if tag_album_artist_sort:
                     result["albumartistsort-set"].append(track_details)
 
                 # assuming track is in 'artistname / albumname / track.mp3"
-                artist_folder_name = str(basename(dirname(dirname(file_name))))
+                artist_folder_name = str(os.path.basename(os.path.dirname(os.path.dirname(file_name))))
 
                 if (
                     plex_album_artist == "Various Artists"
@@ -139,20 +121,15 @@ def get_mismatched_artists(section: LibrarySection) -> dict:
     return result
 
 
-############################################################
-# MISC METHODS
-############################################################
-
-
 def print_list(my_list: list, header_message: str) -> None:
     print(header_message)
-    if len(my_list) > 0:
+    if my_list:
         print(pformat(my_list, width=160))
 
 
 def version_callback(value: bool):
     if value:
-        print(AppConfig.APP_NAME.value + " (version " + AppConfig.APP_VERSION.value + ")")
+        print(f"{APP_NAME} (version {APP_VERSION})")
         raise typer.Exit(code=0)
 
 
@@ -182,7 +159,7 @@ def cli(
         print(f"Found {len(dupes)} album name dupes in library {section_name}")
         for key in dupes:
             for value in dupes[key]:
-                print("Title: '" + key + "', Artist: " + value.parentTitle)
+                print(f"Title: '{key}', Artist: {value.parentTitle}")
 
         dupes = get_artist_dupes(section)
         print_list(dupes, f"Found {len(dupes)} artist name dupes in library {section_name}")

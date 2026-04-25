@@ -24,19 +24,6 @@ class LinterConfig:
     config_path = os.path.join(_parent_dir, "plex_linter.toml")
     template_path = os.path.join(_parent_dir, "plex_linter.template.toml")
 
-    def _plex_server_login(self, url: str, token: str) -> PlexServer:
-        """Attempts to log into plex server, returning server if success, raises error otherwise"""
-        try:
-            plex = PlexServer(url, token)
-        except plexapi.exceptions.Unauthorized:
-            log.exception(f"Unauthorized error connecting to server {url}, check your credentials")
-            raise
-        except requests.exceptions.ConnectionError:
-            log.exception(f"Error connecting to {url}, check the URL provided")
-            raise
-
-        return plex
-
     def _authenticate(self, config: TOMLDocument) -> PlexServer:
         """Gathers url, username and password from user, and repeats until successful authentication.
         Server URL and valid token are placed in the config when successful."""
@@ -45,10 +32,10 @@ class LinterConfig:
 
         if url and token:
             try:
-                plex = self._plex_server_login(url, token)
+                plex = PlexServer(url, token)
                 log.info(f"Successfully logged into plex server at {url}")
                 return plex
-            except (plexapi.exceptions.Unauthorized, requests.exceptions.ConnectionError):
+            except plexapi.exceptions.Unauthorized, requests.exceptions.ConnectionError:
                 log.exception("Saved credentials failed, prompting for new ones")
 
         while True:
@@ -60,7 +47,7 @@ class LinterConfig:
                 account = MyPlexAccount(user, password)
                 token = account.authenticationToken
 
-                plex = self._plex_server_login(url, token)
+                plex = PlexServer(url, token)
             except plexapi.exceptions.Unauthorized:
                 log.exception("Unauthorized error connecting to Plex, check your credentials")
                 continue
