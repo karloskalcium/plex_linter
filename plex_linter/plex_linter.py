@@ -11,7 +11,6 @@ from typing import Annotated
 
 import line_profiler
 import mutagen
-from mutagen import MutagenError
 import typer
 from plexapi.library import LibrarySection
 from rich import print
