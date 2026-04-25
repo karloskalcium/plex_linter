@@ -1,6 +1,6 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-blue.svg?style=flat-square)](https://www.python.org/)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/karloskalcium/plex_linter/refs/heads/master/LICENSE)
-[![PYTHON](https://img.shields.io/badge/python-3.13-orange.svg)](https://docs.python.org/3.13/index.html)
+[![PYTHON](https://img.shields.io/badge/python-3.14-orange.svg)](https://docs.python.org/3.14/index.html)
 
 # Introduction
 
@@ -16,8 +16,8 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 ### Requirements
 
-1. Python 3.13
-1. [Poetry](https://python-poetry.org/)
+1. Python 3.14
+1. [uv](https://docs.astral.sh/uv/)
 
 _Note: Steps below are for OSX (other operating systems will require tweaking to the steps)_
 

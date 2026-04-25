@@ -7,10 +7,11 @@ from enum import Enum
 from inspect import getsourcefile
 from os.path import basename, dirname
 from pprint import pformat
-from typing import Annotated, Optional
+from typing import Annotated
 
 import line_profiler
 import mutagen
+from mutagen import MutagenError
 import typer
 from plexapi.library import LibrarySection
 from rich import print
@@ -159,7 +160,7 @@ def version_callback(value: bool):
 @app.command()
 def cli(
     local: Annotated[
-        Optional[bool],  # noqa: UP007
+        bool | None,
         typer.Option(
             "--local",
             "-l",
@@ -167,7 +168,7 @@ def cli(
         ),
     ] = False,
     version: Annotated[
-        Optional[bool],  # noqa: UP007
+        bool | None,
         typer.Option("--version", "-v", callback=version_callback, help="Program version number"),
     ] = None,
 ) -> None:
