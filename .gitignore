@@ -7,10 +7,6 @@ plex_linter.toml
 # logs
 log/*
 !log/.keep
-
-# make
-.install.stamp
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

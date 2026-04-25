@@ -18,6 +18,7 @@ Plex Linter is a python script that looks for various potential issues in your l
 
 1. Python 3.14
 1. [uv](https://docs.astral.sh/uv/)
+1. [just](https://just.systems/)
 
 _Note: Steps below are for OSX (other operating systems will require tweaking to the steps)_
 
@@ -33,7 +34,7 @@ _Note: Steps below are for OSX (other operating systems will require tweaking to
 
    ```bash
    cd plex_linter
-   make install
+   just install
    ```
 
 ## Usage
