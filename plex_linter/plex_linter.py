@@ -72,7 +72,7 @@ def get_tracks_without_titles(section: LibrarySection) -> list:
     tracks = section.searchTracks(filters={"title=": ""})
     result = []
     for t in tracks:
-        result.extend((t.index, t.album().title, t.artist().title))
+        result.append((t.index, t.album().title, t.artist().title))
 
     return result
 
@@ -89,6 +89,8 @@ def get_mismatched_artists(section: LibrarySection) -> dict:
             try:
                 file_name = next(t.iterParts()).file
                 media_file = mutagen.File(file_name, easy=True)
+                if media_file is None:
+                    continue
                 tag_album_artist = media_file.get("albumartist", [""])[0]
                 tag_artist = media_file.get("artist", [""])[0]
                 tag_album_artist_sort = media_file.get("albumartistsort", [""])[0]
