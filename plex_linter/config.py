@@ -38,40 +38,40 @@ class LinterConfig:
         return plex
 
     def _authenticate(self, config: TOMLDocument) -> PlexServer:
-        """Gathers url, username and password from user, and repeats until successful authentication"""
-        """Server URL and valid token are placed in the config when successful"""
+        """Gathers url, username and password from user, and repeats until successful authentication.
+        Server URL and valid token are placed in the config when successful."""
         url = config["server"]["server_url"]
         token = config["server"]["server_token"]
-        while True:
-            exception_happened = True
-            try:
-                if (len(url) > 0) and (len(token) > 0):
-                    # will throw error if login fails
-                    plex = self._plex_server_login(url, token)
-                    config["server"]["server_url"] = url
-                    config["server"]["server_token"] = token
-                    log.debug(f"Successfully logged into plex server at {url}")
-                    return plex
 
+        if url and token:
+            try:
+                plex = self._plex_server_login(url, token)
+                log.info(f"Successfully logged into plex server at {url}")
+                return plex
+            except (plexapi.exceptions.Unauthorized, requests.exceptions.ConnectionError):
+                log.exception("Saved credentials failed, prompting for new ones")
+
+        while True:
+            try:
                 url = NonEmptyStringPrompt.ask("Plex server URL")
                 user = NonEmptyStringPrompt.ask("Plex username")
                 password = NonEmptyStringPrompt.ask("Plex password", password=True)
 
                 account = MyPlexAccount(user, password)
                 token = account.authenticationToken
+
+                plex = self._plex_server_login(url, token)
             except plexapi.exceptions.Unauthorized:
                 log.exception("Unauthorized error connecting to Plex, check your credentials")
                 continue
             except requests.exceptions.ConnectionError:
-                # error already logged in _plex_server_login method
+                log.exception("Connection error, check the URL provided")
                 continue
-            else:
-                # from https://stackoverflow.com/a/49099889/4907881
-                exception_happened = False
-            finally:
-                if exception_happened:
-                    url = ""
-                    token = ""
+
+            log.info(f"Successfully logged into plex server at {url}")
+            config["server"]["server_url"] = url
+            config["server"]["server_token"] = token
+            return plex
 
     def check_continue(self, config: TOMLDocument):
         """Prints out list of libraries, gives user the option to exit or continue"""
