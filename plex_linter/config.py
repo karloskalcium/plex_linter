@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-from inspect import getsourcefile
 
 import plexapi.exceptions
 import requests
@@ -13,7 +12,6 @@ from rich.prompt import Confirm
 from tomlkit.toml_document import TOMLDocument
 from tomlkit.toml_file import TOMLFile
 
-from ._utils import xstr
 from .non_empty_string_prompt import NonEmptyStringPrompt
 
 # set up module logger
@@ -22,7 +20,7 @@ log = logging.getLogger(__name__)
 
 class LinterConfig:
     # Parent dir of where this module lives
-    _parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(xstr(getsourcefile(lambda: 0)))))
+    _parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     config_path = os.path.join(_parent_dir, "plex_linter.toml")
     template_path = os.path.join(_parent_dir, "plex_linter.template.toml")
 
@@ -55,10 +53,9 @@ class LinterConfig:
                     log.debug(f"Successfully logged into plex server at {url}")
                     return plex
 
-                prompt = NonEmptyStringPrompt()
-                url = prompt.ask("Plex server URL")
-                user = prompt.ask("Plex username")
-                password = prompt.ask("Plex password", password=True)
+                url = NonEmptyStringPrompt.ask("Plex server URL")
+                user = NonEmptyStringPrompt.ask("Plex username")
+                password = NonEmptyStringPrompt.ask("Plex password", password=True)
 
                 account = MyPlexAccount(user, password)
                 token = account.authenticationToken

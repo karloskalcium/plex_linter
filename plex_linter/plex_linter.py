@@ -4,7 +4,6 @@ import logging
 import os
 from collections import Counter, defaultdict
 from enum import Enum
-from inspect import getsourcefile
 from os.path import basename, dirname
 from pprint import pformat
 from typing import Annotated
@@ -16,7 +15,6 @@ from plexapi.library import LibrarySection
 from rich import print
 from rich.progress import track
 
-from ._utils import xstr
 from .config import LinterConfig
 
 # Setup Typer per https://github.com/tiangolo/typer/issues/201#issuecomment-747128376
@@ -32,7 +30,7 @@ class AppConfig(Enum):
 # Setup logger
 # Grabs current module, goes up one directory, then appends log directory to generate logfile name
 log_filename = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(xstr(getsourcefile(lambda: 0))))),
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "log/" + AppConfig.APP_NAME.value + ".log",
 )
 logging.basicConfig(

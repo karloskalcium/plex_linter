@@ -1,12 +1,10 @@
-from rich.prompt import InvalidResponse, PromptBase
+from rich.prompt import InvalidResponse, Prompt
 
 
-class NonEmptyStringPrompt(PromptBase[str]):
-    response_type = str
+class NonEmptyStringPrompt(Prompt):
     validate_error_message = "[prompt.invalid]Please enter a non-empty string."
 
     def process_response(self, value: str) -> str:
-        if len(value) > 0:
-            return value
-        else:
+        if not value:
             raise InvalidResponse(self.validate_error_message)
+        return value
