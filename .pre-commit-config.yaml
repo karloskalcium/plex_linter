@@ -3,7 +3,7 @@ default_language_version:
   python: python3.14
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: check-yaml
       - id: check-json
@@ -11,7 +11,7 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/executablebooks/mdformat
-    rev: 1.0.0
+    rev: 2d496dbc18e31b83a1596685347ffe0b6041daf0  # frozen: 1.0.0
     hooks:
       - id: mdformat
         additional_dependencies:
