@@ -20,10 +20,9 @@ app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]}, add_
 
 APP_NAME = "plex_linter"
 APP_VERSION = importlib.metadata.version(APP_NAME)
-log_filename = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    f"log/{APP_NAME}.log",
-)
+_log_dir = os.path.join(os.path.expanduser("~"), ".plex_linter", "log")
+os.makedirs(_log_dir, exist_ok=True)
+log_filename = os.path.join(_log_dir, f"{APP_NAME}.log")
 logging.basicConfig(
     filename=log_filename,
     level=logging.DEBUG,

@@ -35,7 +35,7 @@ unit-test: install
 
 # Check for outdated GitHub Actions (dry run)
 check-actions:
-    actions-up --dry-run --style sha
+    npx actions-up --dry-run --style sha
 
 # Update pre-commit hooks to latest and freeze revisions to commit SHAs
 freeze-hooks:
@@ -56,7 +56,7 @@ upgrade:
 
 # Upgrade GitHub Actions to latest versions
 upgrade-actions:
-    actions-up --yes --style sha
+    npx actions-up --yes --style sha
 
 # === Cleanup ===
 
@@ -66,7 +66,6 @@ clean:
     rm -f .coverage*
     rm -rf results dist .ruff_cache .pytest_cache
     rm -f profile_output*
-    rm -f log/plex_linter.log
 
 # Clean all temp files and empty UV caches and virtual environments
 deepclean: clean

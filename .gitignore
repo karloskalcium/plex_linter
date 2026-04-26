@@ -4,9 +4,6 @@
 # configuration file
 plex_linter.toml
 
-# logs
-log/*
-!log/.keep
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

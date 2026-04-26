@@ -1,3 +1,4 @@
+import importlib.resources
 import logging
 import os
 import shutil
@@ -19,10 +20,8 @@ log = logging.getLogger(__name__)
 
 
 class LinterConfig:
-    # Parent dir of where this module lives
-    _parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    config_path = os.path.join(_parent_dir, "plex_linter.toml")
-    template_path = os.path.join(_parent_dir, "plex_linter.template.toml")
+    _config_dir = os.path.join(os.path.expanduser("~"), ".plex_linter")
+    config_path = os.path.join(_config_dir, "plex_linter.toml")
 
     def _authenticate(self, config: TOMLDocument) -> PlexServer:
         """Gathers url, username and password from user, and repeats until successful authentication.
@@ -72,8 +71,10 @@ class LinterConfig:
             raise typer.Exit(code=1)
 
     def get_plex_server(self) -> tuple[PlexServer, TOMLDocument]:
-        if not os.path.exists(LinterConfig.config_path):
-            shutil.copy(LinterConfig.template_path, LinterConfig.config_path)
+        os.makedirs(self._config_dir, exist_ok=True)
+        if not os.path.exists(self.config_path):
+            template = importlib.resources.files("plex_linter").joinpath("plex_linter.template.toml")
+            shutil.copy(str(template), self.config_path)
 
         t = TOMLFile(LinterConfig.config_path)
         config = t.read()

@@ -12,44 +12,44 @@ Plex Linter is a python script that looks for various potential issues in your l
 - Tracks linked to artists with Plex metadata that differ from what the MP3 tags say (requires running on the plex server and using the `--local` flag)
   - Note that the linter only works for music libraries currently
 
-## Setup
+## Install
 
-### Requirements
+### With pipx (recommended, no clone needed)
 
-1. Python 3.14
-1. [uv](https://docs.astral.sh/uv/)
-1. [just](https://just.systems/)
+```bash
+pipx install git+https://github.com/karloskalcium/plex_linter.git
+```
 
-_Note: Steps below are for OSX (other operating systems will require tweaking to the steps)_
+### From source (for development)
 
-1. Install `uv` according to the [instructions](https://docs.astral.sh/uv/getting-started/installation/)
+Requirements: Python 3.14, [uv](https://docs.astral.sh/uv/), [just](https://just.systems/)
 
-1. Clone the `plex_linter` repo
-
-   ```bash
-   git clone https://github.com/karloskalcium/plex_linter
-   ```
-
-1. Install the dependencies
-
-   ```bash
-   cd plex_linter
-   just install
-   ```
+```bash
+git clone https://github.com/karloskalcium/plex_linter
+cd plex_linter
+just install
+```
 
 ## Usage
 
-1. Start the `plex_linter`, it will check for a config file, create a new one if it doesn't exist, and ask you to fill your Plex server URL and credentials to generate a Plex Access Token
+Start `plex_linter` — it will check for a config file at `~/.plex_linter/plex_linter.toml`, create one if it doesn't exist, and prompt for your Plex server URL and credentials.
 
-   ```commandline
-   uv run plex_linter
-   ```
+```bash
+plex_linter
+```
 
-1. If you are running on the plex server and want to check for mismatched tags, pass the `--local` flag as follows:
+To check for mismatched tags (requires running on the Plex server with access to media files):
 
-   ```commandline
-   uv run plex_linter --local
-   ```
+```bash
+plex_linter --local
+```
+
+When running from source, prefix commands with `uv run`:
+
+```bash
+uv run plex_linter
+uv run plex_linter --local
+```
 
 ## Configuration
 
