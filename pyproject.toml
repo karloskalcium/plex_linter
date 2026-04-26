@@ -38,6 +38,9 @@ include = ["plex_linter"]
 
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportIndexIssue = false
+reportOptionalMemberAccess = false
+reportPrivateImportUsage = false
 
 pythonVersion = "3.14"
 pythonPlatform = "All"

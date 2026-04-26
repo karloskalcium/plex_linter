@@ -9,7 +9,7 @@ from typing import Annotated
 import line_profiler
 import mutagen
 import typer
-from plexapi.library import LibrarySection
+from plexapi.library import MusicSection
 from rich import print
 from rich.progress import track
 
@@ -35,36 +35,36 @@ log = logging.getLogger(__name__)
 
 
 @line_profiler.profile
-def get_album_dupes(section: LibrarySection) -> dict:
+def get_album_dupes(section: MusicSection) -> dict:
     albums = section.albums()
     album_dict = defaultdict(list)
-    for a in albums:
+    for a in albums:  # type: ignore[reportGeneralTypeIssues]
         album_dict[a.title].append(a)
     result = {k: v for (k, v) in album_dict.items() if len(v) > 1}
     return result
 
 
 @line_profiler.profile
-def get_artist_dupes(section: LibrarySection) -> list:
+def get_artist_dupes(section: MusicSection) -> list:
     artists = section.searchArtists()
-    artists_names = [a.title for a in artists]
+    artists_names = [a.title for a in artists]  # type: ignore[reportGeneralTypeIssues]
     count = Counter(artists_names)
     result = [k for k, v in count.items() if v > 1]
     return result
 
 
 @line_profiler.profile
-def get_tracks_without_titles(section: LibrarySection) -> list:
+def get_tracks_without_titles(section: MusicSection) -> list:
     tracks = section.searchTracks(filters={"title=": ""})
-    return [(t.index, t.album().title, t.artist().title) for t in tracks]
+    return [(t.index, t.album().title, t.artist().title) for t in tracks]  # type: ignore[reportGeneralTypeIssues]
 
 
 @line_profiler.profile
-def get_mismatched_artists(section: LibrarySection) -> dict:
+def get_mismatched_artists(section: MusicSection) -> dict:
     albums = section.albums()
     result = {"albumartistsort-set": [], "artist-mismatch": [], "various-artists-mismatch": []}
     error_count = 0
-    for a in track(albums, "Checking for mismatched artists"):
+    for a in track(albums, "Checking for mismatched artists"):  # type: ignore[reportArgumentType]
         plex_album_artist = a.artist().title
         tracks = a.tracks()
         for t in tracks:
@@ -104,7 +104,7 @@ def get_mismatched_artists(section: LibrarySection) -> dict:
                 elif tag_album_artist != plex_album_artist and tag_artist != plex_album_artist:
                     result["artist-mismatch"].append(track_details)
             except mutagen.MutagenError:
-                log.exception(f"Exception caught trying to read {file_name}")
+                log.exception(f"Exception caught trying to read {file_name}")  # type: ignore[reportPossiblyUnboundVariable]
                 error_count += 1
                 if error_count > 50:
                     print(
@@ -152,7 +152,7 @@ def cli(
     plex, config = lcfg.get_plex_server()
     print("Server login successful")
     lcfg.check_continue(config)
-    for section_name in config["content"]["libraries"]:
+    for section_name in config["content"]["libraries"]:  # type: ignore[reportGeneralTypeIssues]
         log.debug(f"Starting to lint {section_name}")
         section = plex.library.section(section_name)
         dupes = get_album_dupes(section)

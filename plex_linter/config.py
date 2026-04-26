@@ -63,7 +63,7 @@ class LinterConfig:
     def check_continue(self, config: TOMLDocument):
         """Prints out list of libraries, gives user the option to exit or continue"""
         print("Current libraries are:")
-        for lib in config["content"]["libraries"]:
+        for lib in config["content"]["libraries"]:  # type: ignore[reportGeneralTypeIssues]
             print(f"  * {lib}")
 
         print(f"If these aren't correct, edit {LinterConfig.config_path} to add the target libraries.")

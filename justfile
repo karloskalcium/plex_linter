@@ -35,7 +35,7 @@ unit-test: install
 
 # Check for outdated GitHub Actions (dry run)
 check-actions:
-    actions-up --dry-run
+    actions-up --dry-run --style sha
 
 # Update pre-commit hooks to latest and freeze revisions to commit SHAs
 freeze-hooks:
@@ -56,7 +56,7 @@ upgrade:
 
 # Upgrade GitHub Actions to latest versions
 upgrade-actions:
-    actions-up --yes
+    actions-up --yes --style sha
 
 # === Cleanup ===
 
