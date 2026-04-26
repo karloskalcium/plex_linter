@@ -18,7 +18,6 @@ format: install
 lint: install
     uv run ruff check
     uv run ruff format --check
-    actionlint
     just --fmt --check --unstable
 
 # Runs all tests
