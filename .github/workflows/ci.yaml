@@ -14,15 +14,16 @@ jobs:
     name: continuous-integration
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-      - uses: actions/setup-python@v5
-        id: setup-python-step
         with:
           python-version-file: .python-version
+      - name: Install just
+        uses: extractions/setup-just@v4
 
       - name: Run tests
         shell: bash
         run: |
-          just test
+          just lint test
