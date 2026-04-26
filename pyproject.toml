@@ -1,19 +1,19 @@
 [project]
 name = "plex_linter"
-version = "1.1.0"
+version = "1.2.0"
 description = "Checks the plex database for duplicates and mismatches of artists, albums, and tracks"
 authors = [{ name = "karloskalcium" }]
-requires-python = "~=3.13"
+requires-python = "~=3.14.0"
 readme = "README.md"
 license = "MIT"
 dependencies = [
-    "line-profiler>=4.2.0",
-    "mutagen>=1.47.0,<2",
-    "plexapi>=4.15.12,<5",
-    "requests>=2.31.0,<3",
-    "rich>=13.7.1,<14",
-    "tomlkit>=0.12.4,<0.13",
-    "typer>=0.12.3,<0.13",
+    "line-profiler~=5.0",
+    "mutagen~=1.47",
+    "plexapi~=4.18",
+    "requests~=2.33",
+    "rich~=15.0",
+    "tomlkit~=0.14.0",
+    "typer>=0.25.0,<1.0",
 ]
 
 [project.urls]
@@ -24,9 +24,9 @@ plex_linter = "plex_linter.plex_linter:main"
 
 [dependency-groups]
 dev = [
-    "pyright>=1.1.401",
-    "pytest-cov>=6.1.1",
-    "ruff>=0.11.11",
+    "pyright~=1.1",
+    "pytest-cov~=7.1",
+    "ruff~=0.15",
 ]
 
 [build-system]
@@ -38,13 +38,16 @@ include = ["plex_linter"]
 
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportIndexIssue = false
+reportOptionalMemberAccess = false
+reportPrivateImportUsage = false
 
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 pythonPlatform = "All"
 
 [tool.ruff]
 line-length = 120
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
